@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 
+import 'chart_bar.dart';
+
 class Chart extends StatelessWidget {
   final List<Transaction> recentTransactions;
 
@@ -21,24 +23,41 @@ class Chart extends StatelessWidget {
         }
       }
 
-      print(totalSum); 
-      print(DateFormat.E().format(weekDay)); 
+      // print(totalSum);
+      // print(DateFormat.E().format(weekDay));
 
       return {'day': DateFormat.E().format(weekDay), 'amount': totalSum};
-    });
+    }).reversed.toList();
     // 7 for seven days in a week
+  }
+
+  double get totalSpending {
+    return groupedTransactionValues.fold(0.0, (sum, curr) {
+      return sum + curr['amount'];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(groupedTransactionValues);
+    // print(groupedTransactionValues);
     return Card(
-      elevation: 6,
+      elevation: 5,
       margin: EdgeInsets.all(20),
-      child: Row(
-        children: groupedTransactionValues.map((data) {
-          return Text('${data['day']}: ${data['amount']}');
-        }).toList(),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: groupedTransactionValues.map((data) {
+            return Flexible(
+                fit: FlexFit.tight,
+                child: ChartBar(
+                    data['day'],
+                    data['amount'],
+                    totalSpending == 0.0
+                        ? 0.0
+                        : (data['amount'] as double) / totalSpending));
+          }).toList(),
+        ),
       ),
     );
   }

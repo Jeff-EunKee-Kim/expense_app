@@ -16,13 +16,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           primarySwatch: Colors.red,
           accentColor: Colors.green,
+          errorColor: Colors.grey,
           fontFamily: 'QuickSand',
           textTheme: ThemeData.light().textTheme.copyWith(
-                  title: TextStyle(
-                fontFamily: 'SpaceQuest',
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              )),
+                title: TextStyle(
+                  fontFamily: 'SpaceQuest',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+                button: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
           appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
                     title: TextStyle(
@@ -45,18 +50,48 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> transactions = [];
 
   final List<Transaction> _userTransactions = [
-    // Transaction(
-    //   id: "t1",
-    //   title: "New Shoes",
-    //   amount: 40.99,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: "t2",
-    //   title: "New Car",
-    //   amount: 20.99,
-    //   date: DateTime.now(),
-    // ),
+    Transaction(
+      id: "t1",
+      title: "Nike",
+      amount: 40.99,
+      date: DateTime.now().subtract(Duration(days: 5)),
+    ),
+    Transaction(
+      id: "t2",
+      title: "BMW",
+      amount: 20.99,
+      date: DateTime.now().subtract(Duration(days: 5)),
+    ),
+    Transaction(
+      id: "t3",
+      title: "Benz",
+      amount: 10.99,
+      date: DateTime.now().subtract(Duration(days: 3)),
+    ),
+    Transaction(
+      id: "t4",
+      title: "Ball",
+      amount: 30.99,
+      date: DateTime.now().subtract(Duration(days: 4)),
+    ),
+    Transaction(
+      id: "t5",
+      title: "Food",
+      amount: 20.99,
+      date: DateTime.now().subtract(Duration(days: 1)),
+    ),
+    Transaction(
+      id: "t6",
+      title: "Clothes",
+      amount: 20.99,
+      date: DateTime.now().subtract(Duration(days: 1)),
+    ),
+    Transaction(
+      id: "t7",
+      title: "House",
+      amount: 20.99,
+      date: DateTime.now().subtract(Duration(days: 2)),
+    ),
   ];
 
   List<Transaction> get _recentTransactions {
@@ -66,19 +101,25 @@ class _MyHomePageState extends State<MyHomePage> {
           Duration(days: 7),
         ),
       );
-    }).toList(); 
+    }).toList();
   }
 
-  void _addNewTransactions(String title, double amount) {
+  void _addNewTransactions(String title, double amount, DateTime chosenDate) {
     final newTransaction = Transaction(
       title: title,
       amount: amount,
-      date: DateTime.now(),
+      date: chosenDate,
       id: DateTime.now().toString(),
     );
 
     setState(() {
       _userTransactions.add(newTransaction);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((item) => item.id == id);
     });
   }
 
@@ -114,13 +155,16 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Chart(_recentTransactions),
-            TransactionList(_userTransactions),
+            TransactionList(_userTransactions, _deleteTransaction),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          size: 30,
+        ),
         onPressed: () => _startAddNewTransaction(context),
       ),
     );
