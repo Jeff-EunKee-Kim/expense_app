@@ -1,10 +1,12 @@
 // import 'package:expense_app/widgets/user_transactions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './models/transaction.dart';
 import './widgets/transaction_list.dart';
 import './widgets/new_transaction.dart';
 import './widgets/chart.dart';
+import 'dart:io';
 
 void main() {
   // SystemChrome.setPreferredOrientations([
@@ -144,23 +146,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
 
-    final isLandscape =
-        mediaQuery.orientation == Orientation.landscape;
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
 
-    final appBar = AppBar(
-      title: Text(
-        'HooHaHooHa',
-        style: Theme.of(context).appBarTheme.textTheme.title,
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.add,
-          ),
-          onPressed: () => _startAddNewTransaction(context),
-        ),
-      ],
-    );
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar()
+        : AppBar(
+            title: Text(
+              'HooHaHooHa',
+              style: Theme.of(context).appBarTheme.textTheme.title,
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.add,
+                ),
+                onPressed: () => _startAddNewTransaction(context),
+              ),
+            ],
+          );
     final txWidgetList = Container(
       height: (mediaQuery.size.height -
               appBar.preferredSize.height -
@@ -168,9 +171,9 @@ class _MyHomePageState extends State<MyHomePage> {
           0.7,
       child: TransactionList(_userTransactions, _deleteTransaction),
     );
-    return Scaffold(
-      appBar: appBar,
-      body: SingleChildScrollView(
+
+    final pageBody = SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -189,34 +192,48 @@ class _MyHomePageState extends State<MyHomePage> {
                       }),
                 ],
               ),
-            if (!isLandscape) Container(
-                    height: (mediaQuery.size.height -
-                            appBar.preferredSize.height -
-                            mediaQuery.padding.top) *
-                        .3,
-                    child: Chart(_recentTransactions),
-                  ),
+            if (!isLandscape)
+              Container(
+                height: (mediaQuery.size.height -
+                        appBar.preferredSize.height -
+                        mediaQuery.padding.top) *
+                    .3,
+                child: Chart(_recentTransactions),
+              ),
             if (!isLandscape) txWidgetList,
-            if (isLandscape) _showChart
-                ? Container(
-                    height: (mediaQuery.size.height -
-                            appBar.preferredSize.height -
-                            mediaQuery.padding.top) *
-                        .7,
-                    child: Chart(_recentTransactions),
-                  )
-                : txWidgetList,
+            if (isLandscape)
+              _showChart
+                  ? Container(
+                      height: (mediaQuery.size.height -
+                              appBar.preferredSize.height -
+                              mediaQuery.padding.top) *
+                          .7,
+                      child: Chart(_recentTransactions),
+                    )
+                  : txWidgetList,
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          size: 30,
-        ),
-        onPressed: () => _startAddNewTransaction(context),
-      ),
     );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+            navigationBar: appBar,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Platform.isAndroid
+                ? FloatingActionButton(
+                    child: Icon(
+                      Icons.add,
+                      size: 30,
+                    ),
+                    onPressed: () => _startAddNewTransaction(context),
+                  )
+                : Container(),
+          );
   }
 }
