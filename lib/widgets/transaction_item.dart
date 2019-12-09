@@ -1,8 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 
-class TransactionListCreater extends StatelessWidget {
+class TransactionListCreater extends StatefulWidget {
   const TransactionListCreater({
     Key key,
     @required this.transaction,
@@ -11,6 +13,25 @@ class TransactionListCreater extends StatelessWidget {
 
   final Transaction transaction;
   final Function removeTransaction;
+
+  @override
+  _TransactionListCreaterState createState() => _TransactionListCreaterState();
+}
+
+class _TransactionListCreaterState extends State<TransactionListCreater> {
+  Color _bgColor;
+
+  @override
+  void initState() {
+    const availableColors = [
+      Colors.red,
+      Colors.blue,
+      Colors.black,
+      Colors.green,
+    ];
+    _bgColor = availableColors[Random().nextInt(4)];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +43,18 @@ class TransactionListCreater extends StatelessWidget {
       ),
       child: ListTile(
         leading: CircleAvatar(
+          backgroundColor: _bgColor,
           child: Padding(
             padding: EdgeInsets.all(3),
-            child: FittedBox(
-                child: Text('\$${transaction.amount}')),
+            child: FittedBox(child: Text('\$${widget.transaction.amount}')),
           ),
         ),
         title: Text(
-          transaction.title,
+          widget.transaction.title,
           style: Theme.of(context).textTheme.title,
         ),
         subtitle: Text(
-          DateFormat.yMMMd().format(transaction.date),
+          DateFormat.yMMMd().format(widget.transaction.date),
         ),
         trailing: MediaQuery.of(context).size.width > 400
             ? FlatButton.icon(
@@ -41,7 +62,7 @@ class TransactionListCreater extends StatelessWidget {
                 textColor: Theme.of(context).errorColor,
                 label: Text("Delete"),
                 onPressed: () =>
-                    removeTransaction(transaction.id),
+                    widget.removeTransaction(widget.transaction.id),
               )
             : IconButton(
                 icon: const Icon(
@@ -49,7 +70,7 @@ class TransactionListCreater extends StatelessWidget {
                 ),
                 color: Theme.of(context).errorColor,
                 onPressed: () =>
-                    removeTransaction(transaction.id),
+                    widget.removeTransaction(widget.transaction.id),
               ),
       ),
     );
